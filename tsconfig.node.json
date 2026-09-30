@@ -18,6 +18,7 @@
     "eslint.config.js",
     "playwright.config.ts",
     "api/**/*.ts",
+    "server/**/*.ts",
     "tests/**/*.ts"
   ]
 }

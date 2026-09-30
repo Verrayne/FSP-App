@@ -74,3 +74,18 @@ context, portfolio/queue read models and shared-FSP isolation are documented in
 [insurer-portal.md](./insurer-portal.md). Administrator-only organisation, tenant user, submission
 period, and FSP relationship settings are documented in [tenant-settings.md](./tenant-settings.md).
 Human and durable AI review orchestration, immutable submission history, notifications, tenant settings and FSCA registry imports are implemented. Production approval is deliberately withheld until the P1 controls in [Production readiness](production-readiness.md) are closed.
+
+## Vercel API deployment
+
+The 18 public API endpoints are routed by `vercel.json` into eight deployed
+functions: health, AI review, notifications, registry administration, registry
+processing, invitations, tenant creation, and submission documents. Existing
+URLs and cron paths are preserved. `api/` contains only deployment entrypoints;
+`server/api/` contains the original handlers and shared server code, and
+`server/router.ts` dispatches requests and supplies path parameters. Each
+handler retains its method checks, authentication, authorization, and validation.
+Tests and TypeScript include `server/` so these modules remain covered.
+
+All four cron jobs currently run daily for Vercel Hobby compatibility. After
+upgrading, the AI review, notification processing, and registry processing
+schedules can return to `* * * * *`; deadline reminders remain daily.

@@ -16,7 +16,7 @@ Invitation emails retain their token-specific API flow, but now share the email-
 
 ## Scheduling and delivery
 
-Vercel calls `/api/notifications/process` every minute and `/api/notifications/reminders` daily at 06:00 UTC (08:00 SAST). Both require `Authorization: Bearer $CRON_SECRET`. Production email requires `RESEND_API_KEY`, `EMAIL_FROM`, and `PUBLIC_APP_URL`. Non-production delivery uses `LOCAL_CAPTURE` and makes no external email request.
+Vercel calls `/api/notifications/process` and `/api/notifications/reminders` daily at 06:00 UTC (08:00 SAST) while hosted on Hobby. Restore minute scheduling for processing after upgrading to Pro. Both require `Authorization: Bearer $CRON_SECRET`. Production email requires `RESEND_API_KEY`, `EMAIL_FROM`, and `PUBLIC_APP_URL`. Non-production delivery uses `LOCAL_CAPTURE` and makes no external email request.
 
 Event and delivery claims recover locks older than ten minutes. Failures use bounded retries and safe error codes; user addresses and message bodies are not logged. Provider webhooks are intentionally out of scope, so `SENT` means accepted by the provider.
 

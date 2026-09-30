@@ -1,24 +1,124 @@
 {
-  "rewrites": [{ "source": "/((?!api/).*)", "destination": "/index.html" }],
+  "rewrites": [
+    {
+      "source": "/api/ai-review/process",
+      "destination": "/api/ai-review?__path=/api/ai-review/process"
+    },
+    {
+      "source": "/api/notifications/process",
+      "destination": "/api/notifications?__path=/api/notifications/process"
+    },
+    {
+      "source": "/api/notifications/reminders",
+      "destination": "/api/notifications?__path=/api/notifications/reminders"
+    },
+    {
+      "source": "/api/registry/imports",
+      "destination": "/api/registry-admin?__path=/api/registry/imports"
+    },
+    {
+      "source": "/api/registry/imports/:importId",
+      "destination": "/api/registry-admin?__path=/api/registry/imports/:importId"
+    },
+    {
+      "source": "/api/registry/imports/:importId/confirm",
+      "destination": "/api/registry-admin?__path=/api/registry/imports/:importId/confirm"
+    },
+    {
+      "source": "/api/registry/template",
+      "destination": "/api/registry-admin?__path=/api/registry/template"
+    },
+    {
+      "source": "/api/registry/process",
+      "destination": "/api/registry-worker?__path=/api/registry/process"
+    },
+    {
+      "source": "/api/fsp-users/invitations",
+      "destination": "/api/invitations?__path=/api/fsp-users/invitations"
+    },
+    {
+      "source": "/api/fsp-users/invitations/:invitationId/resend",
+      "destination": "/api/invitations?__path=/api/fsp-users/invitations/:invitationId/resend"
+    },
+    {
+      "source": "/api/tenant-users/invitations",
+      "destination": "/api/invitations?__path=/api/tenant-users/invitations"
+    },
+    {
+      "source": "/api/tenant-users/invitations/:invitationId/resend",
+      "destination": "/api/invitations?__path=/api/tenant-users/invitations/:invitationId/resend"
+    },
+    {
+      "source": "/api/platform/tenants",
+      "destination": "/api/platform-tenants?__path=/api/platform/tenants"
+    },
+    {
+      "source": "/api/submissions/:submissionId/certificate",
+      "destination": "/api/submission-documents?__path=/api/submissions/:submissionId/certificate"
+    },
+    {
+      "source": "/api/submissions/:submissionId/attempts/:attemptId/documents/:documentVersionId",
+      "destination": "/api/submission-documents?__path=/api/submissions/:submissionId/attempts/:attemptId/documents/:documentVersionId"
+    },
+    {
+      "source": "/api/admin/submissions/:submissionId/documents/:documentId",
+      "destination": "/api/submission-documents?__path=/api/admin/submissions/:submissionId/documents/:documentId"
+    },
+    {
+      "source": "/api/admin/submissions/:submissionId/attempts/:attemptId/documents/:documentVersionId",
+      "destination": "/api/submission-documents?__path=/api/admin/submissions/:submissionId/attempts/:attemptId/documents/:documentVersionId"
+    },
+    {
+      "source": "/((?!api/).*)",
+      "destination": "/index.html"
+    }
+  ],
   "crons": [
-    { "path": "/api/ai-review/process", "schedule": "0 6 * * *" },
-    { "path": "/api/notifications/process", "schedule": "0 6 * * *" },
-    { "path": "/api/registry/process", "schedule": "0 6 * * *" },
-    { "path": "/api/notifications/reminders", "schedule": "0 6 * * *" }
+    {
+      "path": "/api/ai-review/process",
+      "schedule": "0 6 * * *"
+    },
+    {
+      "path": "/api/notifications/process",
+      "schedule": "0 6 * * *"
+    },
+    {
+      "path": "/api/registry/process",
+      "schedule": "0 6 * * *"
+    },
+    {
+      "path": "/api/notifications/reminders",
+      "schedule": "0 6 * * *"
+    }
   ],
   "headers": [
     {
       "source": "/(.*)",
       "headers": [
-        { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "X-Frame-Options", "value": "DENY" },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
         {
           "key": "Strict-Transport-Security",
           "value": "max-age=63072000; includeSubDomains; preload"
         },
-        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
-        { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=()" },
-        { "key": "Cross-Origin-Opener-Policy", "value": "same-origin" },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(), microphone=(), geolocation=()"
+        },
+        {
+          "key": "Cross-Origin-Opener-Policy",
+          "value": "same-origin"
+        },
         {
           "key": "Content-Security-Policy",
           "value": "default-src 'self'; base-uri 'self'; connect-src 'self' https://*.supabase.co wss://*.supabase.co; font-src 'self' data:; form-action 'self'; frame-ancestors 'none'; img-src 'self' data: blob:; object-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; upgrade-insecure-requests"
