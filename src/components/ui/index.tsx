@@ -80,12 +80,33 @@ interface RadioGroupProps {
   options: RadioOption[]
   value?: string
   onChange?: (value: string) => void
+  disabled?: boolean
+  required?: boolean
+  invalid?: boolean
+  describedBy?: string
 }
 
-export function RadioGroup({ legend, name, options, value, onChange }: RadioGroupProps) {
+export function RadioGroup({
+  legend,
+  name,
+  options,
+  value,
+  onChange,
+  disabled,
+  required,
+  invalid,
+  describedBy,
+}: RadioGroupProps) {
   return (
-    <fieldset className="space-y-2">
-      <legend className="text-sm font-medium text-slate-800">{legend}</legend>
+    <fieldset className="space-y-2" aria-invalid={invalid} aria-describedby={describedBy}>
+      <legend className="text-sm font-medium text-slate-800">
+        {legend}{' '}
+        {required && (
+          <span className="text-red-700" aria-label="required">
+            *
+          </span>
+        )}
+      </legend>
       {options.map((option) => (
         <label
           key={option.value}
@@ -96,6 +117,8 @@ export function RadioGroup({ legend, name, options, value, onChange }: RadioGrou
             name={name}
             value={option.value}
             checked={value === option.value}
+            disabled={disabled}
+            required={required}
             onChange={() => onChange?.(option.value)}
             className="accent-navy-900 mt-0.5"
           />
@@ -182,8 +205,14 @@ export function Dialog({
   useEffect(() => {
     const dialog = ref.current
     if (!dialog) return
-    if (open && !dialog.open) dialog.showModal()
-    if (!open && dialog.open) dialog.close()
+    if (open && !dialog.open) {
+      if (typeof dialog.showModal === 'function') dialog.showModal()
+      else dialog.setAttribute('open', '')
+    }
+    if (!open && dialog.open) {
+      if (typeof dialog.close === 'function') dialog.close()
+      else dialog.removeAttribute('open')
+    }
   }, [open])
 
   return (
@@ -207,13 +236,32 @@ export function Dialog({
   )
 }
 
-export function Dropdown({ label, children }: { label: ReactNode; children: ReactNode }) {
+export function Dropdown({
+  label,
+  labelText,
+  children,
+  placement = 'bottom',
+}: {
+  label: ReactNode
+  labelText: string
+  children: ReactNode
+  placement?: 'top' | 'bottom'
+}) {
   return (
     <details className="group relative">
-      <summary className="cursor-pointer list-none rounded-md [&::-webkit-details-marker]:hidden">
+      <summary
+        role="button"
+        aria-label={labelText}
+        className="cursor-pointer list-none rounded-md [&::-webkit-details-marker]:hidden"
+      >
         {label}
       </summary>
-      <div className="absolute right-0 z-30 mt-2 min-w-48 rounded-md border bg-white p-1 shadow-lg">
+      <div
+        className={cn(
+          'absolute right-0 z-30 min-w-48 rounded-md border bg-white p-1 shadow-lg',
+          placement === 'top' ? 'bottom-full mb-2' : 'mt-2',
+        )}
+      >
         {children}
       </div>
     </details>
@@ -268,7 +316,12 @@ export function Tooltip({ label, children }: { label: string; children: ReactNod
 }
 
 export function Skeleton({ className }: { className?: string }) {
-  return <div aria-hidden="true" className={cn('animate-pulse rounded bg-slate-200', className)} />
+  return (
+    <div
+      aria-hidden="true"
+      className={cn('animate-pulse rounded bg-slate-200 motion-reduce:animate-none', className)}
+    />
+  )
 }
 
 export function EmptyState({
@@ -317,10 +370,10 @@ export function PageHeader({
   )
 }
 
-export function FormError({ children }: { children?: ReactNode }) {
+export function FormError({ children, id }: { children?: ReactNode; id?: string }) {
   if (!children) return null
   return (
-    <p role="alert" className="mt-1 text-xs font-medium text-red-700">
+    <p id={id} role="alert" className="mt-1 text-xs font-medium text-red-700">
       {children}
     </p>
   )

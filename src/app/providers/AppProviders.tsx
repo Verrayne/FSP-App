@@ -1,7 +1,8 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { useState, type ReactNode } from 'react'
+import { useCallback, useState, type ReactNode } from 'react'
 
 import { ErrorBoundary } from '../../components/shared/ErrorBoundary'
+import { AuthProvider } from './AuthProvider'
 
 export function AppProviders({ children }: { children: ReactNode }) {
   const [queryClient] = useState(
@@ -13,10 +14,13 @@ export function AppProviders({ children }: { children: ReactNode }) {
         },
       }),
   )
+  const clearQueryCache = useCallback(() => queryClient.clear(), [queryClient])
 
   return (
     <ErrorBoundary>
-      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider onSignedOut={clearQueryCache}>{children}</AuthProvider>
+      </QueryClientProvider>
     </ErrorBoundary>
   )
 }

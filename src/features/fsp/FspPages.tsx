@@ -1,44 +1,6 @@
-import { CalendarDays, CheckCircle2, Clock3, FileText, ShieldCheck } from 'lucide-react'
+import { Badge, EmptyState, PageHeader, Table } from '../../components/ui'
 
-import { Badge, Card, EmptyState, PageHeader, Table } from '../../components/ui'
-
-export function FspDashboardPage() {
-  return (
-    <div className="space-y-6">
-      <PageHeader
-        eyebrow="FSP workspace"
-        title="Dashboard"
-        description="Your annual compliance activity at a glance."
-      />
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {[
-          { label: 'Reporting period', value: 'Not configured', icon: CalendarDays },
-          { label: 'Submission status', value: 'Not started', icon: FileText },
-          { label: 'Profile status', value: 'Pending', icon: CheckCircle2 },
-          { label: 'Access', value: 'Foundation mode', icon: ShieldCheck },
-        ].map(({ label, value, icon: Icon }) => (
-          <Card key={label} className="p-4">
-            <div className="flex items-center justify-between">
-              <p className="text-xs font-medium text-slate-500">{label}</p>
-              <Icon className="size-4 text-slate-400" />
-            </div>
-            <p className="mt-3 text-base font-semibold">{value}</p>
-          </Card>
-        ))}
-      </div>
-      <Card className="p-5">
-        <div className="flex items-center gap-2">
-          <Clock3 className="text-brand-700 size-4" />
-          <h2 className="font-semibold">Next steps</h2>
-        </div>
-        <p className="mt-2 text-sm text-slate-600">
-          Submission periods and business workflows will appear here once configured in later
-          prompts.
-        </p>
-      </Card>
-    </div>
-  )
-}
+export { DashboardPage as FspDashboardPage } from '../dashboard/pages/DashboardPage'
 
 const fspPages = {
   profile: ['FSP Profile', 'Organisation details and regulatory identifiers will be managed here.'],

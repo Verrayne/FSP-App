@@ -1,8 +1,10 @@
 # Foundation architecture
 
+Submission review uses immutable attempts and a database-owned transition function. Human decisions are tenant-scoped RPCs with row locking and expected-status checks. AI work is durable and server-only: browser roles have no queue privileges, and production AI remains capability-gated until a provider passes privacy and security approval. History reads reuse those immutable records through scope-checked projections; raw audit metadata is not browser-readable. See [Submission review](submission-review.md) and [Submission history](submission-history.md).
+
 ## Context and boundaries
 
-The platform is one React application with distinct public, authentication, FSP and administration route areas. `Tenant`, `FSP` and `User` are separate domain identities. A future controlled relationship links tenants to FSPs, and membership links users to FSPs; the same FSP record may participate with multiple tenants.
+The platform is one React application with distinct public, authentication, FSP and administration route areas. `Tenant`, `FSP` and `User` are separate domain identities. Controlled relationship tables link tenants to global FSPs and users to FSPs; the same FSP record may participate with multiple tenants.
 
 ```mermaid
 flowchart LR
@@ -12,7 +14,7 @@ flowchart LR
   API[Vercel server-side API / functions]
   DB[(Supabase PostgreSQL)]
   Storage[(Supabase private Storage)]
-  Workers[Future workers / functions]
+  Workers[Vercel cron workers]
 
   Browser --> React
   Browser --> Auth
@@ -53,6 +55,22 @@ API failures use `{ error: { code, message, details? } }` with explicit codes fo
 - Dependencies are exact-versioned with a committed npm lockfile.
 - Accessible native elements provide keyboard and focus behaviour.
 
-## Deferred to Prompt 02 or later
+## Implemented and deferred boundaries
 
-No schema, RLS/storage policy, bucket, seed identity, route authorization guard, claim flow, invitation, submission business logic, upload, affidavit, review, notification or FSCA import exists yet. Prompt 02 must define relationship cardinality, lifecycle/status values, audit requirements, RLS threat tests and private Storage object-path conventions before these placeholders become functional.
+Prompts 02–04 provide the relational schema, RLS, private Storage policy, seed identities,
+Auth/profile trigger, session provider, authenticated route guard and FSP onboarding boundary.
+
+The authenticated `/app` tree now resolves membership before choosing onboarding or the workspace.
+`FspProvider` is the Prompt 05 hand-off: it supplies active memberships, the validated current FSP
+and the selected role, while PostgreSQL remains authoritative. See
+[onboarding.md](./onboarding.md). The FSP dashboard consumes that context and scopes submission reads
+through an explicit tenant-FSP relationship; see [dashboard.md](./dashboard.md). The metadata-driven
+questionnaire, version-aware route rules, certificate/declaration branches and atomic final submission
+are documented in [submissions.md](./submissions.md). FSP-scoped invitations, user administration,
+and the central role capability model are documented in [users-and-permissions.md](./users-and-permissions.md).
+The global, FSP-scoped organisation profile and its regulatory/master/submission ownership boundary are
+documented in [fsp-profile.md](./fsp-profile.md). The separate `/admin` insurer workspace, current-tenant
+context, portfolio/queue read models and shared-FSP isolation are documented in
+[insurer-portal.md](./insurer-portal.md). Administrator-only organisation, tenant user, submission
+period, and FSP relationship settings are documented in [tenant-settings.md](./tenant-settings.md).
+Human and durable AI review orchestration, immutable submission history, notifications, tenant settings and FSCA registry imports are implemented. Production approval is deliberately withheld until the P1 controls in [Production readiness](production-readiness.md) are closed.

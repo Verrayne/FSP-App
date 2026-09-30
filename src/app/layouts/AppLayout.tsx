@@ -1,4 +1,5 @@
 import { Building2, FileClock, FileText, LayoutDashboard, Users } from 'lucide-react'
+import { useLocation } from 'react-router-dom'
 
 import { WorkspaceLayout } from './WorkspaceLayout'
 
@@ -11,5 +12,26 @@ const navigation = [
 ]
 
 export function AppLayout() {
-  return <WorkspaceLayout navigation={navigation} sectionLabel="FSP workspace" />
+  const { pathname } = useLocation()
+  const headerTitle =
+    pathname === '/app/dashboard'
+      ? 'Dashboard'
+      : pathname === '/app/submissions'
+        ? 'Submission History'
+        : pathname === '/app/submissions/new' || pathname.startsWith('/app/submissions/')
+          ? 'B-BBEE Submission'
+          : pathname === '/app/profile'
+            ? 'FSP Profile'
+            : pathname === '/app/users'
+              ? 'Users'
+              : undefined
+
+  return (
+    <WorkspaceLayout
+      navigation={navigation}
+      sectionLabel="FSP workspace"
+      headerTitle={headerTitle}
+      workspace="fsp"
+    />
+  )
 }

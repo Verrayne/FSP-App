@@ -1,8 +1,9 @@
-import { createClient } from '@supabase/supabase-js'
+import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 
 import { publicEnv } from '../../config/env'
+import type { Database } from '../../types/database.types'
 
-let browserClient: ReturnType<typeof createClient> | undefined
+let browserClient: SupabaseClient<Database> | undefined
 
 export function getSupabaseBrowserClient() {
   const { VITE_SUPABASE_URL: url, VITE_SUPABASE_PUBLISHABLE_KEY: key } = publicEnv
@@ -13,8 +14,13 @@ export function getSupabaseBrowserClient() {
     )
   }
 
-  browserClient ??= createClient(url, key, {
-    auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
+  browserClient ??= createClient<Database>(url, key, {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: true,
+      flowType: 'pkce',
+    },
   })
 
   return browserClient

@@ -21,7 +21,7 @@ export function AuthLayout() {
         <p className="text-xs text-slate-400">Secure by design · Tenant-aware · Audit-ready</p>
       </section>
       <main className="flex min-h-screen items-center justify-center p-6">
-        <div className="w-full max-w-sm">
+        <div className="w-full max-w-md">
           <div className="mb-8 lg:hidden">
             <Brand />
           </div>
