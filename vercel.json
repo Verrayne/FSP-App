@@ -1,6 +1,10 @@
 {
   "rewrites": [
     {
+      "source": "/api/reports/email",
+      "destination": "/api/registry-admin?__path=/api/reports/email"
+    },
+    {
       "source": "/api/ai-review/process",
       "destination": "/api/ai-review?__path=/api/ai-review/process"
     },

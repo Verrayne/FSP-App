@@ -193,11 +193,13 @@ export function Dialog({
   title,
   children,
   onClose,
+  className,
 }: {
   open: boolean
   title: string
   children: ReactNode
   onClose: () => void
+  className?: string
 }) {
   const ref = useRef<HTMLDialogElement>(null)
   const titleId = useId()
@@ -221,9 +223,12 @@ export function Dialog({
       aria-labelledby={titleId}
       onCancel={onClose}
       onClose={onClose}
-      className="m-auto w-[min(32rem,calc(100%-2rem))] rounded-lg border-0 bg-white p-0 shadow-xl backdrop:bg-slate-950/40"
+      className={cn(
+        'm-auto max-h-[90dvh] w-[min(32rem,calc(100%-2rem))] overflow-y-auto rounded-lg border-0 bg-white p-0 shadow-xl backdrop:bg-slate-950/40',
+        className,
+      )}
     >
-      <div className="flex items-center justify-between border-b px-5 py-4">
+      <div className="sticky top-0 z-30 flex items-center justify-between border-b bg-white px-5 py-4">
         <h2 id={titleId} className="font-semibold">
           {title}
         </h2>

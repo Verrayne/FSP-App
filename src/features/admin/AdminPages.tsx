@@ -1,17 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import {
-  ArrowDown,
-  ArrowLeft,
-  ArrowUp,
-  Building2,
-  CheckCircle2,
-  Clock3,
-  Download,
-  FileCheck2,
-  FileText,
-  Search,
-} from 'lucide-react'
-import { useState, type ReactNode } from 'react'
+import { ArrowDown, ArrowLeft, ArrowUp, Building2, Download, Search } from 'lucide-react'
+import { useState } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
 
 import {
@@ -54,6 +43,7 @@ import {
   retryAiReview,
 } from './services/adminService'
 import type { PortfolioFilters, SubmissionFilters } from './types'
+import { DashboardReporting } from './reporting/DashboardReporting'
 
 const pageSizes = [10, 25, 50] as const
 
@@ -92,21 +82,10 @@ function PageSkeleton() {
   )
 }
 
-function MetricCard({ icon, label, value }: { icon: ReactNode; label: string; value: number }) {
-  return (
-    <Card className="p-5">
-      <div className="flex items-center gap-2 text-slate-500">
-        {icon}
-        <p className="text-sm">{label}</p>
-      </div>
-      <p className="mt-3 text-2xl font-semibold text-slate-950">{value.toLocaleString('en-ZA')}</p>
-    </Card>
-  )
-}
-
 export function AdminDashboardPage() {
   const { currentTenant } = useTenant()
   const tenantId = currentTenant!.tenantId
+  const [portfolioOpen, setPortfolioOpen] = useState(false)
   const dashboard = useQuery({
     queryKey: adminQueryKeys.dashboard(tenantId),
     queryFn: () => getTenantDashboard(tenantId),
@@ -138,51 +117,51 @@ export function AdminDashboardPage() {
         />
       ) : (
         <>
-          {dashboard.data.period ? (
-            <Card className="border-l-brand-600 border-l-4 p-5">
-              <p className="text-xs font-semibold tracking-wide text-slate-500 uppercase">
-                Current open period
-              </p>
-              <div className="mt-1 flex flex-wrap items-baseline justify-between gap-2">
-                <h2 className="text-lg font-semibold">{dashboard.data.period.name}</h2>
-                <span className="text-sm text-slate-600">
-                  {formatDate(dashboard.data.period.openDate)} –{' '}
-                  {formatDate(dashboard.data.period.closeDate)}
-                </span>
-              </div>
-            </Card>
-          ) : (
-            <Alert title="No open submission period">
-              Portfolio totals are available, but submission metrics require an open period.
-            </Alert>
-          )}
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
-            <MetricCard
-              icon={<Building2 className="size-4" />}
-              label="Total FSPs"
-              value={dashboard.data.totalFsps}
-            />
-            <MetricCard
-              icon={<FileCheck2 className="size-4" />}
-              label="Submitted"
-              value={dashboard.data.submittedFsps}
-            />
-            <MetricCard
-              icon={<Clock3 className="size-4" />}
-              label="Outstanding"
-              value={dashboard.data.outstandingFsps}
-            />
-            <MetricCard
-              icon={<FileText className="size-4" />}
-              label="Under review"
-              value={dashboard.data.underReviewSubmissions}
-            />
-            <MetricCard
-              icon={<CheckCircle2 className="size-4" />}
-              label="Completed"
-              value={dashboard.data.completedSubmissions}
-            />
+          <div className="grid items-stretch gap-4 md:grid-cols-[minmax(0,3fr)_minmax(12rem,1fr)]">
+            {dashboard.data.period ? (
+              <Card className="border-l-brand-600 border-l-4 p-5">
+                <p className="text-xs font-semibold tracking-wide text-slate-500 uppercase">
+                  Current open period
+                </p>
+                <div className="mt-1 flex flex-wrap items-baseline justify-between gap-2">
+                  <h2 className="text-lg font-semibold">{dashboard.data.period.name}</h2>
+                  <span className="text-sm text-slate-600">
+                    {formatDate(dashboard.data.period.openDate)} –{' '}
+                    {formatDate(dashboard.data.period.closeDate)}
+                  </span>
+                </div>
+              </Card>
+            ) : (
+              <Alert title="No open submission period">
+                Portfolio totals are available, but submission metrics require an open period.
+              </Alert>
+            )}
+            <button
+              type="button"
+              onClick={() => setPortfolioOpen(true)}
+              className="rounded-lg text-left focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-teal-600"
+              aria-label={`View all ${dashboard.data.totalFsps} FSPs`}
+            >
+              <Card className="h-full p-5 transition-colors hover:border-teal-300">
+                <div className="flex items-center gap-2 text-sm text-slate-500">
+                  <Building2 className="size-4" />
+                  Total FSPs
+                </div>
+                <div className="mt-2 flex items-baseline justify-between">
+                  <p className="text-2xl font-semibold tabular-nums">
+                    {dashboard.data.totalFsps.toLocaleString('en-ZA')}
+                  </p>
+                  <span className="text-xs text-teal-700">View portfolio →</span>
+                </div>
+              </Card>
+            </button>
           </div>
+          <DashboardReporting
+            key={tenantId}
+            metrics={dashboard.data}
+            portfolioOpen={portfolioOpen}
+            closePortfolio={() => setPortfolioOpen(false)}
+          />
         </>
       )}
       <section className="space-y-3" aria-labelledby="recent-submissions-title">

@@ -11,6 +11,7 @@ export interface EmailMessage {
   text: string
   html: string
   idempotencyKey: string
+  attachments?: Array<{ filename: string; content: string }>
 }
 
 export type EmailResult =
@@ -72,6 +73,7 @@ export function createEmailProvider(): EmailProvider {
             subject: message.subject,
             text: message.text,
             html: message.html,
+            ...(message.attachments?.length ? { attachments: message.attachments } : {}),
           }),
           signal: AbortSignal.timeout(10_000),
         })

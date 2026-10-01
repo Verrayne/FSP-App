@@ -16,11 +16,11 @@ const config = JSON.parse(readFileSync('vercel.json', 'utf8')) as {
 }
 
 describe('grouped API routing', () => {
-  it('deploys eight entrypoints and maps all 17 other public routes to them', () => {
+  it('deploys eight entrypoints and maps all 18 other public routes to them', () => {
     const entries = readdirSync('api').filter((file) => file.endsWith('.ts'))
     expect(entries).toHaveLength(8)
     const rewrites = config.rewrites.filter((route) => route.source.startsWith('/api/'))
-    expect(rewrites).toHaveLength(17)
+    expect(rewrites).toHaveLength(18)
     for (const route of rewrites) {
       const [destination, path] = route.destination.split('?__path=')
       expect(entries).toContain(destination.slice('/api/'.length) + '.ts')

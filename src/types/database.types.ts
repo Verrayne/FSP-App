@@ -3307,6 +3307,10 @@ export type Database = {
           timezone: string
         }[]
       }
+      get_tenant_reporting: {
+        Args: { target_tenant_id: string; window_days?: number }
+        Returns: Json
+      }
       get_tenant_review_dashboard: {
         Args: { target_tenant_id: string; target_today: string }
         Returns: {
@@ -3924,6 +3928,10 @@ export type Database = {
           invitation_id: string
           role: string
         }[]
+      }
+      reserve_report_email: {
+        Args: { target_request_id: string; target_tenant_id: string }
+        Returns: boolean
       }
       retry_ai_review: {
         Args: { target_submission_id: string }
