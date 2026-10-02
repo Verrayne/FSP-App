@@ -273,9 +273,23 @@ export function Dropdown({
   )
 }
 
-export function Table({ children, className }: { children: ReactNode; className?: string }) {
+export function Table({
+  children,
+  className,
+  scrollRef,
+  onScroll,
+}: {
+  children: ReactNode
+  className?: string
+  scrollRef?: React.Ref<HTMLDivElement>
+  onScroll?: HTMLAttributes<HTMLDivElement>['onScroll']
+}) {
   return (
-    <div className={cn('overflow-x-auto rounded-lg border', className)}>
+    <div
+      ref={scrollRef}
+      onScroll={onScroll}
+      className={cn('overflow-x-auto rounded-lg border', className)}
+    >
       <table className="w-full border-collapse bg-white text-left text-sm">{children}</table>
     </div>
   )

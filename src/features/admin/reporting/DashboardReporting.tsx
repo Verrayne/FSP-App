@@ -10,7 +10,7 @@ import {
   LoaderCircle,
   Search,
 } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Alert, Button, Card, Dialog, Input, Select, Skeleton, Table } from '../../../components/ui'
 import type { TenantDashboardMetrics } from '../../tenant/types'
 import { useTenant } from '../../tenant/hooks/useTenant'
@@ -245,6 +245,22 @@ function PortfolioTable({
   windowDays: ReportingWindow
 }) {
   const [search, setSearch] = useState('')
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const [scrollLeft, setScrollLeft] = useState(0)
+  const [scrollMax, setScrollMax] = useState(0)
+  useEffect(() => {
+    const container = scrollRef.current
+    if (!container) return
+    const update = () => {
+      setScrollMax(Math.max(0, container.scrollWidth - container.clientWidth))
+      setScrollLeft(container.scrollLeft)
+    }
+    update()
+    const observer = new ResizeObserver(update)
+    observer.observe(container)
+    if (container.firstElementChild) observer.observe(container.firstElementChild)
+    return () => observer.disconnect()
+  }, [])
   const [visibleCount, setVisibleCount] = useState(20)
   const filtered = report.portfolio.filter((row) =>
     [row.fspNumber, row.tiaFspNumber, row.fspName, row.contactPerson, row.email].some((value) =>
@@ -278,7 +294,11 @@ function PortfolioTable({
         </label>
         <ReportActions report={report} kind="fsps" windowDays={windowDays} />
       </div>
-      <Table className="portfolio-scroll max-h-[48dvh] overflow-x-scroll overflow-y-auto">
+      <Table
+        scrollRef={scrollRef}
+        onScroll={(event) => setScrollLeft(event.currentTarget.scrollLeft)}
+        className="portfolio-scroll max-h-[48dvh] overflow-x-auto overflow-y-auto"
+      >
         <thead>
           <tr>
             {portfolioColumns.map((item) => (
@@ -313,6 +333,20 @@ function PortfolioTable({
           )}
         </tbody>
       </Table>
+      <input
+        type="range"
+        aria-label="Scroll table horizontally"
+        className="portfolio-scroll-control block w-full"
+        min={0}
+        max={scrollMax}
+        value={scrollLeft}
+        disabled={scrollMax === 0}
+        onChange={(event) => {
+          const left = Number(event.target.value)
+          if (scrollRef.current) scrollRef.current.scrollLeft = left
+          setScrollLeft(left)
+        }}
+      />
       {visibleCount < filtered.length && (
         <div role="status" className="flex justify-center py-2" aria-label="Loading more FSPs">
           <LoaderCircle className="size-5 animate-spin text-slate-500" />

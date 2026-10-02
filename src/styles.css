@@ -72,3 +72,32 @@
   border-radius: 999px;
   background: var(--color-slate-400);
 }
+
+.portfolio-scroll-control {
+  appearance: none;
+  height: 14px;
+  border-radius: 999px;
+  background: var(--color-slate-200);
+  cursor: ew-resize;
+}
+
+.portfolio-scroll-control::-webkit-slider-thumb {
+  appearance: none;
+  width: 80px;
+  height: 14px;
+  border-radius: 999px;
+  background: var(--color-slate-500);
+}
+
+.portfolio-scroll-control::-moz-range-thumb {
+  width: 80px;
+  height: 14px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--color-slate-500);
+}
+
+.portfolio-scroll-control:disabled {
+  opacity: 0.4;
+  cursor: default;
+}

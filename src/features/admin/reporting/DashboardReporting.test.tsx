@@ -1,6 +1,6 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { DashboardReporting } from './DashboardReporting'
 import { reportingFixture } from './testFixtures'
 import { portfolioColumns } from './model'
@@ -40,8 +40,19 @@ function renderReports(portfolioOpen = false) {
 describe('dashboard report interactions', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    vi.stubGlobal(
+      'ResizeObserver',
+      class {
+        observe() {}
+        disconnect() {}
+      },
+    )
     service.get.mockResolvedValue(reportingFixture())
     service.email.mockResolvedValue(undefined)
+  })
+  afterEach(() => {
+    vi.unstubAllGlobals()
+    vi.restoreAllMocks()
   })
   it('opens the graph history, exposes 12 rows, and downloads the selected report window', async () => {
     renderReports()
@@ -65,10 +76,20 @@ describe('dashboard report interactions', () => {
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
   })
   it('shows the full FSP report columns and filters the visible table', async () => {
+    vi.spyOn(HTMLElement.prototype, 'scrollWidth', 'get').mockReturnValue(2400)
+    vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockReturnValue(1200)
     renderReports(true)
     const dialog = await screen.findByRole('dialog', { name: 'FSP portfolio' })
     await within(dialog).findByRole('columnheader', { name: 'FSP Number' })
     expect(within(dialog).getAllByRole('columnheader')).toHaveLength(portfolioColumns.length)
+    const scrollbar = within(dialog).getByRole('slider', { name: 'Scroll table horizontally' })
+    await waitFor(() => expect(scrollbar).toHaveAttribute('max', '1200'))
+    fireEvent.change(scrollbar, { target: { value: '600' } })
+    const container = within(dialog).getByRole('table').parentElement!
+    expect(container.scrollLeft).toBe(600)
+    container.scrollLeft = 900
+    fireEvent.scroll(container)
+    expect(scrollbar).toHaveValue('900')
     fireEvent.change(within(dialog).getByRole('searchbox'), { target: { value: '53456' } })
     expect(within(dialog).queryByRole('cell', { name: 'Karoo Oak' })).not.toBeInTheDocument()
     expect(within(dialog).getByRole('cell', { name: 'Ubuntu Meridian' })).toBeInTheDocument()
