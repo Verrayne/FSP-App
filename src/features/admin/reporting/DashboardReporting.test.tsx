@@ -54,7 +54,7 @@ describe('dashboard report interactions', () => {
     const dialog = screen.getByRole('dialog', { name: 'Complete vs incomplete' })
     expect(within(dialog).getAllByRole('row')).toHaveLength(13)
     expect(within(dialog).getAllByText('Unavailable').length).toBeGreaterThan(0)
-    fireEvent.click(within(dialog).getByRole('button', { name: 'Download Excel' }))
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Download' }))
     expect(service.download).toHaveBeenCalledWith(
       expect.anything(),
       'completion',
@@ -77,7 +77,7 @@ describe('dashboard report interactions', () => {
     renderReports()
     fireEvent.click(await screen.findByRole('button', { name: 'Expand Valid vs expired' }))
     const dialog = screen.getByRole('dialog', { name: 'Valid vs expired' })
-    fireEvent.click(within(dialog).getByRole('button', { name: 'Email Excel report' }))
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Mail' }))
     fireEvent.change(within(dialog).getByLabelText('Recipient email address'), {
       target: { value: 'recipient@example.test' },
     })

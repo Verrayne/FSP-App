@@ -224,7 +224,7 @@ export function Dialog({
       onCancel={onClose}
       onClose={onClose}
       className={cn(
-        'm-auto max-h-[90dvh] w-[min(32rem,calc(100%-2rem))] overflow-y-auto rounded-lg border-0 bg-white p-0 shadow-xl backdrop:bg-slate-950/40',
+        'fixed inset-y-0 right-0 left-[var(--workspace-inset,0rem)] m-auto max-h-[90dvh] w-[min(32rem,calc(100%-var(--workspace-inset,0rem)-2rem))] overflow-y-auto rounded-lg border-0 bg-white p-0 shadow-xl backdrop:bg-slate-950/40',
         className,
       )}
     >
@@ -273,9 +273,9 @@ export function Dropdown({
   )
 }
 
-export function Table({ children }: { children: ReactNode }) {
+export function Table({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <div className="overflow-x-auto rounded-lg border">
+    <div className={cn('overflow-x-auto rounded-lg border', className)}>
       <table className="w-full border-collapse bg-white text-left text-sm">{children}</table>
     </div>
   )

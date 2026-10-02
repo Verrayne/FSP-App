@@ -8,6 +8,7 @@ import {
   Mail,
   Maximize2,
   LoaderCircle,
+  Search,
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Alert, Button, Card, Dialog, Input, Select, Skeleton, Table } from '../../../components/ui'
@@ -167,7 +168,7 @@ function ReportActions({
           onClick={() => downloadReport(report, kind, currentTenant!.name, windowDays)}
         >
           <Download className="size-4" />
-          Download Excel
+          Download
         </Button>
         {canEmail && (
           <Button
@@ -179,7 +180,7 @@ function ReportActions({
             }}
           >
             <Mail className="size-4" />
-            Email Excel report
+            Mail
           </Button>
         )}
       </div>
@@ -236,7 +237,13 @@ function ReportActions({
   )
 }
 
-function PortfolioTable({ report }: { report: TenantReporting }) {
+function PortfolioTable({
+  report,
+  windowDays,
+}: {
+  report: TenantReporting
+  windowDays: ReportingWindow
+}) {
   const [search, setSearch] = useState('')
   const [visibleCount, setVisibleCount] = useState(20)
   const filtered = report.portfolio.filter((row) =>
@@ -251,56 +258,61 @@ function PortfolioTable({ report }: { report: TenantReporting }) {
   }, [visibleCount, filtered.length, search])
   return (
     <div className="space-y-3">
-      <label className="block max-w-md text-sm font-medium">
-        Search FSPs
-        <Input
-          className="mt-1"
-          type="search"
-          value={search}
-          onChange={(event) => {
-            setSearch(event.target.value)
-            setVisibleCount(20)
-          }}
-          placeholder="FSP number, name or contact"
-        />
-      </label>
-      <div className="max-h-[48dvh] overflow-auto">
-        <Table>
-          <thead>
-            <tr>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <label className="relative block w-full max-w-md">
+          <span className="sr-only">Search</span>
+          <Search
+            aria-hidden="true"
+            className="pointer-events-none absolute top-2.5 left-3 size-4 text-slate-400"
+          />
+          <Input
+            className="pl-9"
+            type="search"
+            value={search}
+            onChange={(event) => {
+              setSearch(event.target.value)
+              setVisibleCount(20)
+            }}
+            placeholder="Search"
+          />
+        </label>
+        <ReportActions report={report} kind="fsps" windowDays={windowDays} />
+      </div>
+      <Table className="portfolio-scroll max-h-[48dvh] overflow-x-scroll overflow-y-auto">
+        <thead>
+          <tr>
+            {portfolioColumns.map((item) => (
+              <th
+                key={item.key}
+                className={`sticky top-0 z-10 min-w-40 border-b bg-slate-50 px-4 py-3 text-xs font-semibold text-slate-600 ${item.key === 'fspNumber' ? 'left-0 z-20' : ''}`}
+              >
+                {item.label}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {filtered.slice(0, visibleCount).map((row) => (
+            <tr key={row.id}>
               {portfolioColumns.map((item) => (
-                <th
+                <td
                   key={item.key}
-                  className={`sticky top-0 z-10 min-w-40 border-b bg-slate-50 px-4 py-3 text-xs font-semibold text-slate-600 ${item.key === 'fspNumber' ? 'left-0 z-20' : ''}`}
+                  className={`border-b px-4 py-3 whitespace-nowrap ${item.key === 'fspNumber' ? 'sticky left-0 bg-white font-medium' : ''}`}
                 >
-                  {item.label}
-                </th>
+                  {portfolioCell(row, item.key, report.asOf)}
+                </td>
               ))}
             </tr>
-          </thead>
-          <tbody>
-            {filtered.slice(0, visibleCount).map((row) => (
-              <tr key={row.id}>
-                {portfolioColumns.map((item) => (
-                  <td
-                    key={item.key}
-                    className={`border-b px-4 py-3 whitespace-nowrap ${item.key === 'fspNumber' ? 'sticky left-0 bg-white font-medium' : ''}`}
-                  >
-                    {portfolioCell(row, item.key, report.asOf)}
-                  </td>
-                ))}
-              </tr>
-            ))}
-            {!filtered.length && (
-              <tr>
-                <td colSpan={portfolioColumns.length} className="px-4 py-8 text-slate-500">
-                  No matching FSPs.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </Table>
-      </div>
+          ))}
+          {!filtered.length && (
+            <tr>
+              <td colSpan={portfolioColumns.length} className="px-4 py-8 text-slate-500">
+                No matching FSPs.
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </Table>
       {visibleCount < filtered.length && (
         <div role="status" className="flex justify-center py-2" aria-label="Loading more FSPs">
           <LoaderCircle className="size-5 animate-spin text-slate-500" />
@@ -434,7 +446,7 @@ export function DashboardReporting({
           setExpanded(null)
           closePortfolio()
         }}
-        className="fixed top-1/2 left-1/2 m-0 w-[min(76rem,calc(100%-2rem))] -translate-x-1/2 -translate-y-1/2"
+        className="w-[min(76rem,calc(100%-var(--workspace-inset,0rem)-2rem))]"
       >
         {report.isPending ? (
           <Skeleton className="h-64 w-full" />
@@ -452,10 +464,9 @@ export function DashboardReporting({
         ) : (
           activeKind && (
             <div key={activeKind} className="space-y-6">
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <p className="text-sm text-slate-600">{currentTenant!.name}</p>
-                  {activeKind !== 'fsps' && (
+              {activeKind !== 'fsps' && (
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
                     <p className="mt-1 text-xs text-slate-500">
                       As of{' '}
                       {new Date(report.data.asOf).toLocaleDateString('en-ZA', {
@@ -463,12 +474,12 @@ export function DashboardReporting({
                       })}{' '}
                       · Previous 12 months
                     </p>
-                  )}
+                  </div>
+                  <ReportActions report={report.data} kind={activeKind} windowDays={windowDays} />
                 </div>
-                <ReportActions report={report.data} kind={activeKind} windowDays={windowDays} />
-              </div>
+              )}
               {activeKind === 'fsps' ? (
-                <PortfolioTable report={report.data} />
+                <PortfolioTable report={report.data} windowDays={windowDays} />
               ) : (
                 <>
                   <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]">

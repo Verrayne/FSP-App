@@ -79,7 +79,12 @@ export function WorkspaceLayout({
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div
+      className={cn(
+        'min-h-screen bg-slate-50 [--workspace-inset:0rem] lg:[--workspace-inset:16rem]',
+        collapsed && 'lg:[--workspace-inset:5rem]',
+      )}
+    >
       {open && (
         <button
           aria-label="Close navigation overlay"
@@ -243,10 +248,7 @@ export function WorkspaceLayout({
 
       <div className={cn('transition-[padding] duration-200 lg:pl-64', collapsed && 'lg:pl-20')}>
         <header
-          className={cn(
-            'sticky top-0 z-20 bg-slate-50',
-            headerTitle ? 'h-20 lg:h-24' : 'h-16',
-          )}
+          className={cn('sticky top-0 z-20 bg-slate-50', headerTitle ? 'h-20 lg:h-24' : 'h-16')}
         >
           <div className="mx-auto flex h-full w-full max-w-7xl items-center justify-end px-4 sm:px-6 lg:px-8">
             <div className="mr-auto lg:hidden">
